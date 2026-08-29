@@ -1,0 +1,86 @@
+import { defineSoftwareMap } from "@dev.fast/progressive-review/software-map-model";
+
+export default defineSoftwareMap({
+  people: {
+    skillDoctorMaintainers: {
+      label: "Skill-doctor maintainers",
+      description: "Maintain skill-doctor collection and reporting behavior.",
+    },
+  },
+  systems: {
+    commonSkillsRepo: {
+      label: "Common skills repository",
+      description: "Hosts reusable agent skills and their helper scripts.",
+      containers: {
+        skillDoctor: {
+          label: "Skill-doctor skill",
+          description: "Grades agent-skill usage quality from local conversation evidence.",
+          components: {
+            startupContract: {
+              label: "Startup harness contract",
+              description: "Defines supported harnesses and source-selection rules.",
+              coverage: {
+                files: [
+                  ".agents/skills/skill-doctor/references/supported-harnesses.md",
+                ],
+              },
+            },
+            sessionCollector: {
+              label: "Session collector",
+              description: "Collects Claude, Codex, and Warp sessions and infers skill usage.",
+              coverage: {
+                files: [
+                  ".agents/skills/skill-doctor/scripts/collect_sessions.py",
+                ],
+              },
+            },
+            collectorTests: {
+              label: "Collector test suite",
+              description: "Validates collection logic and session parsing behavior.",
+              coverage: {
+                files: [
+                  ".agents/skills/skill-doctor/scripts/test_collect_sessions.py",
+                ],
+              },
+            },
+            reportRendererTests: {
+              label: "Report renderer test suite",
+              description: "Guards rendered-report contract and startup guidance references.",
+              coverage: {
+                files: [
+                  ".agents/skills/skill-doctor/scripts/test_render_report.py",
+                ],
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  relationships: [
+    {
+      kind: "semantic",
+      from: "skillDoctorMaintainers",
+      to: "commonSkillsRepo.skillDoctor.startupContract",
+      label: "Updates harness guidance",
+    },
+    {
+      kind: "semantic",
+      from: "commonSkillsRepo.skillDoctor.startupContract",
+      to: "commonSkillsRepo.skillDoctor.sessionCollector",
+      label: "Defines allowed collector sources",
+    },
+    {
+      kind: "semantic",
+      from: "commonSkillsRepo.skillDoctor.sessionCollector",
+      to: "commonSkillsRepo.skillDoctor.collectorTests",
+      label: "Validated by collector tests",
+    },
+    {
+      kind: "semantic",
+      from: "commonSkillsRepo.skillDoctor.startupContract",
+      to: "commonSkillsRepo.skillDoctor.reportRendererTests",
+      label: "Referenced by report test contract",
+    },
+  ],
+});
