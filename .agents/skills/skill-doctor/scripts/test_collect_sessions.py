@@ -497,7 +497,7 @@ class OpenCodeSessionTests(unittest.TestCase):
             warnings = io.StringIO()
             with redirect_stderr(warnings):
                 records, scanned, usable = find_opencode_sessions(
-                    [database], now - timedelta(seconds=1), {"skill-doctor"}, False
+                    [database], now - timedelta(seconds=1), False
                 )
             self.assertEqual(len(warnings.getvalue().splitlines()), 11)
             self.assertIn(
@@ -531,7 +531,7 @@ class OpenCodeSessionTests(unittest.TestCase):
 
             with redirect_stderr(io.StringIO()):
                 with_children, _, _ = find_opencode_sessions(
-                    [database], now - timedelta(seconds=1), set(), True
+                    [database], now - timedelta(seconds=1), True
                 )
             self.assertEqual(
                 {record["meta"]["source_id"] for record in with_children},
@@ -547,7 +547,7 @@ class OpenCodeSessionTests(unittest.TestCase):
 
             with redirect_stderr(io.StringIO()):
                 outside, _, _ = find_opencode_sessions(
-                    [database], now + timedelta(seconds=4), set(), True
+                    [database], now + timedelta(seconds=4), True
                 )
             self.assertEqual(outside, [])
 
@@ -594,7 +594,7 @@ class OpenCodeSessionTests(unittest.TestCase):
             connection.close()
 
             records, _, _ = find_opencode_sessions(
-                [database], now - timedelta(seconds=1), set(), False
+                [database], now - timedelta(seconds=1), False
             )
             by_id = {record["meta"]["source_id"]: record for record in records}
             self.assertEqual(by_id["preferred"]["entries"], [("user", "message-part")])
@@ -637,7 +637,7 @@ class OpenCodeSessionTests(unittest.TestCase):
                 databases.append(database)
 
             records, _, usable = find_opencode_sessions(
-                databases, now - timedelta(seconds=1), set(), False
+                databases, now - timedelta(seconds=1), False
             )
             self.assertEqual(usable, databases)
             self.assertEqual(
@@ -685,7 +685,7 @@ class OpenCodeSessionTests(unittest.TestCase):
                 reader.close()
 
             records, _, _ = find_opencode_sessions(
-                [database], now - timedelta(seconds=1), set(), False
+                [database], now - timedelta(seconds=1), False
             )
             self.assertEqual(records[0]["entries"], [("user", "from wal")])
             self.assertEqual(writer.execute("PRAGMA journal_mode").fetchone()[0], "wal")
@@ -715,7 +715,7 @@ class OpenCodeSessionTests(unittest.TestCase):
                 [str(identities[0]), str(root / "alias.db"), str(identities[1])], root
             )
             records, _, _ = find_opencode_sessions(
-                discovered, now - timedelta(seconds=1), set(), False
+                discovered, now - timedelta(seconds=1), False
             )
             self.assertEqual(len(discovered), 2)
             self.assertEqual(len({record["meta"]["id"] for record in records}), 2)

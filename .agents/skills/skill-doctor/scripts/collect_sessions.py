@@ -800,9 +800,7 @@ def opencode_message_part_rows(connection, session_id, warn):
     return True, rows
 
 
-def parse_opencode_session(
-    connection, database, session, skill_names, include_subagents, warn
-):
+def parse_opencode_session(connection, database, session, include_subagents, warn):
     """Normalize one current OpenCode SQLite session."""
     is_child = bool(session["parent_id"])
     if is_child and not include_subagents:
@@ -1010,7 +1008,7 @@ def parse_opencode_session(
     return meta, stats, entries, sorted(skills_used), last_ts, evidence
 
 
-def find_opencode_sessions(databases, cutoff, skill_names, include_subagents):
+def find_opencode_sessions(databases, cutoff, include_subagents):
     records = []
     scanned = 0
     usable = []
@@ -1055,7 +1053,6 @@ def find_opencode_sessions(databases, cutoff, skill_names, include_subagents):
                     connection,
                     database,
                     session,
-                    skill_names,
                     include_subagents,
                     warn,
                 )
@@ -1612,7 +1609,6 @@ def main():
                 find_opencode_sessions(
                     opencode_databases,
                     cutoff,
-                    skills.keys(),
                     args.include_subagents,
                 )
             )
